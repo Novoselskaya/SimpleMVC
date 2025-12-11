@@ -7,7 +7,7 @@ $config = [
         'db' => [
             'dns' => 'mysql:host=localhost;dbname=dbname',
             'username' => 'root',
-            'password' => '1234'
+            'password' => 'P@ssw0rd'
         ],
         'router' => [ // подсистема маршрутизация
             'class' => \ItForFree\SimpleMVC\Router\WebRouter::class,

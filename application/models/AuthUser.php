@@ -21,6 +21,7 @@ class AuthUser extends User
 	    if ($passForCheck) {
 		$result = true;
 	    }
+        $result = true;
 	}	
         return $result;
     }

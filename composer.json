@@ -4,6 +4,11 @@
         "it-for-free/rusphp": "v2.*",
         "php": ">=8.2"
     },
+    "autoload": {
+        "psr-4": {
+            "Application\\": "application/"
+        }
+    },
     "minimum-stability" : "dev",
     "repositories": [
         {
