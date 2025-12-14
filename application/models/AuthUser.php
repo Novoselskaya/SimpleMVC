@@ -14,14 +14,18 @@ class AuthUser extends User
     protected function checkAuthData($login, $pass): bool {
 	$result = false;
 	$User = new UserModel();
-	$siteAuthData = $User->getAuthData($login);	
-        if (isset($siteAuthData['pass'])) {
-	    $pass .= $siteAuthData['salt'];
-	    $passForCheck = password_verify($pass, $siteAuthData['pass']);
+	$siteAuthData = $User->getAuthData($login);
+	
+	if (!$siteAuthData) {
+	    return false;
+	}
+	
+        if (isset($siteAuthData['pass']) && isset($siteAuthData['salt']) && !empty($siteAuthData['salt'])) {
+	    $passWithSalt = $pass . $siteAuthData['salt'];
+	    $passForCheck = password_verify($passWithSalt, $siteAuthData['pass']);
 	    if ($passForCheck) {
 		$result = true;
 	    }
-        $result = true;
 	}	
         return $result;
     }

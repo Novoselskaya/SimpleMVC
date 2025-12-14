@@ -44,6 +44,10 @@ class AdminusersController extends \ItForFree\SimpleMVC\MVC\Controller
         $Url = Config::get('core.router.class');
         if (!empty($_POST)) {
             if (!empty($_POST['saveNewUser'])) {
+                // Склеиваем три части пароля в одно
+                $_POST['pass'] = $_POST['pass'] . $_POST['pass_part2'] . $_POST['pass_part3'];
+                unset($_POST['pass_part2'], $_POST['pass_part3']);
+                
                 $Adminusers = new UserModel();
                 $newAdminusers = $Adminusers->loadFromArray($_POST);
                 $newAdminusers->insert(); 
@@ -68,9 +72,18 @@ class AdminusersController extends \ItForFree\SimpleMVC\MVC\Controller
         $id = $_GET['id'];
         $Url = Config::get('core.router.class');
         
-        if (!empty($_POST)) { // это выполняется нормально.
+        if (!empty($_POST)) { 
             
             if (!empty($_POST['saveChanges'] )) {
+                // Если все три части пароля пустые, оставляем пустым (пароль не меняется)
+                if (empty($_POST['pass']) && empty($_POST['pass_part2']) && empty($_POST['pass_part3'])) {
+                    $_POST['pass'] = '';
+                } else {
+                    // Склеиваем три части пароля в одно
+                    $_POST['pass'] = $_POST['pass'] . $_POST['pass_part2'] . $_POST['pass_part3'];
+                }
+                unset($_POST['pass_part2'], $_POST['pass_part3']);
+                
                 $Adminusers = new UserModel();
                 $newAdminusers = $Adminusers->loadFromArray($_POST);
                 $newAdminusers->update();

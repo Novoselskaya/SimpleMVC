@@ -23,7 +23,7 @@ class UserModel extends Model
     /**
     * @var string роль пользователя
     */
-    protected $role = null;
+    public $role = null;
     
     public $email = null;
     
@@ -67,20 +67,29 @@ class UserModel extends Model
     
     public function update()
     {
-        $sql = "UPDATE $this->tableName SET timestamp=:timestamp, login=:login, pass=:pass, email=:email  WHERE id = :id";  
+        // Получаем текущие данные пользователя из БД
+        $currentUser = $this->getById($this->id);
+        
+        // Если пароль пустой, используем текущий пароль и 
+        if (empty($this->pass)) {
+            $passToUpdate = $currentUser->pass;
+            $saltToUpdate = $currentUser->salt;
+        } else {
+            // Хеширование нового пароля 
+            $this->salt = rand(0,1000000);
+            $saltToUpdate = $this->salt;
+            $this->pass .= $this->salt;
+            $passToUpdate = password_hash($this->pass, PASSWORD_BCRYPT);
+        }
+        
+        $sql = "UPDATE $this->tableName SET timestamp=:timestamp, login=:login, salt=:salt, pass=:pass, role=:role, email=:email WHERE id = :id";  
         $st = $this->pdo->prepare ( $sql );
         
         $st->bindValue( ":timestamp", (new \DateTime('NOW'))->format('Y-m-d H:i:s'), \PDO::PARAM_STMT);
         $st->bindValue( ":login", $this->login, \PDO::PARAM_STR );
-        
-        // Хеширование пароля
-        $this->salt = rand(0,1000000);
-        //$st->bindValue( ":salt", $this->salt, \PDO::PARAM_STR );
-        //$this->pass .= $this->salt;
-        //$hashPass = password_hash($this->pass, PASSWORD_BCRYPT);
-        $st->bindValue( ":pass", $this->pass, \PDO::PARAM_STR );
-        
-        //$st->bindValue( ":role", $this->role, \PDO::PARAM_STR );
+        $st->bindValue( ":salt", $saltToUpdate, \PDO::PARAM_STR );
+        $st->bindValue( ":pass", $passToUpdate, \PDO::PARAM_STR );
+        $st->bindValue( ":role", $this->role, \PDO::PARAM_STR );
         $st->bindValue( ":email", $this->email, \PDO::PARAM_STR );
         $st->bindValue( ":id", $this->id, \PDO::PARAM_INT );
         $st->execute();
@@ -113,7 +122,7 @@ class UserModel extends Model
 	$st = $this->pdo->prepare($sql);
 	$st->bindValue(":login", $login, \PDO::PARAM_STR);
 	$st->execute();
-	$authData = $st->fetch();
+	$authData = $st->fetch(\PDO::FETCH_ASSOC);
 	return $authData ? $authData : null;
     }
     
