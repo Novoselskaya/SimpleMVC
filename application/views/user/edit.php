@@ -23,7 +23,7 @@ $User = Config::getObject('core.user.class');
     </div>
     <div class="form-group">
         <label for="pass">Введите пароль (часть 1)</label>
-        <input type="text" class="form-control" name="pass" id="pass" placeholder="пароль часть 1 (оставьте пустым, чтобы не менять)" value="">
+        <input type="text" class="form-control" name="pass" id="pass" placeholder="пароль часть 1 " value="">
     </div>
     <div class="form-group">
         <label for="pass_part2">Введите пароль (часть 2)</label>
@@ -38,6 +38,7 @@ $User = Config::getObject('core.user.class');
         <select name="role" id="role" class="form-control"> 
             <option value="admin" <?= ($viewAdminusers->role == 'admin') ? 'selected' : '' ?>>Администратор</option>
             <option value="auth_user" <?= ($viewAdminusers->role == 'auth_user') ? 'selected' : '' ?>>Зарегистрированный пользователь</option>
+            <option value="user" <?= ($viewAdminusers->role == 'user') ? 'selected' : '' ?>>Просто юзер</option>
         </select>
     </div>
     <div class="form-group">
