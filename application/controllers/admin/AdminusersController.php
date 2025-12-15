@@ -44,19 +44,16 @@ class AdminusersController extends \ItForFree\SimpleMVC\MVC\Controller
         $Url = Config::get('core.router.class');
         if (!empty($_POST)) {
             if (!empty($_POST['saveNewUser'])) {
-                // Проверяем, что хотя бы одно поле пароля заполнено
                 if (empty($_POST['pass']) && empty($_POST['pass_part2']) && empty($_POST['pass_part3'])) {
-                    // Если все три поля пустые - показываем ошибку
                     $addAdminusersTitle = "Регистрация пользователя";
                     $errorMessage = "Введите пароль хотя бы в одно поле";
                     $this->view->addVar('addAdminusersTitle', $addAdminusersTitle);
                     $this->view->addVar('errorMessage', $errorMessage);
-                    $this->view->addVar('formData', $_POST); // Сохраняем введенные данные
+                    $this->view->addVar('formData', $_POST); 
                     $this->view->render('user/add.php');
                     return;
                 }
                 
-                // Склеиваем три части пароля в одно
                 $_POST['pass'] = $_POST['pass'] . $_POST['pass_part2'] . $_POST['pass_part3'];
                 unset($_POST['pass_part2'], $_POST['pass_part3']);
                 
