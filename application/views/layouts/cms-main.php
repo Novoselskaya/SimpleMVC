@@ -24,17 +24,6 @@ if (isset($results) && is_array($results) && isset($results['pageTitle'])) {
 </head>
 <body>
     <div id="container">
-        <div style="text-align: right; margin-bottom: 10px;">
-            <?php if ($User && method_exists($User, 'isAllowed')): ?>
-                <?php if ($User->isAllowed("login/logout")): ?>
-                    <a href="<?= \ItForFree\SimpleMVC\Router\WebRouter::link("login/logout")?>">Выход (<?= htmlspecialchars($User->userName ?? '') ?>)</a>
-                <?php elseif ($User->isAllowed("login/login")): ?>
-                    <a href="<?= \ItForFree\SimpleMVC\Router\WebRouter::link("login/login")?>">Вход</a>
-                <?php endif; ?>
-            <?php else: ?>
-                <a href="<?= \ItForFree\SimpleMVC\Router\WebRouter::link("login/login")?>">Вход</a>
-            <?php endif; ?>
-        </div>
         <a href="<?= \ItForFree\SimpleMVC\Router\WebRouter::link("homepage/index")?>">
             <img id="logo" src="/images/logo.jpg" alt="Widget News" />
         </a>

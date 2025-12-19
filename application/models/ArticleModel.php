@@ -51,6 +51,15 @@ class ArticleModel extends Model
             } else {
                 $this->subcategory_id = null;
             }
+            
+            // Преобразуем publicationDate в timestamp, если это строка
+            if (isset($data['publicationDate'])) {
+                if (is_string($data['publicationDate'])) {
+                    $this->publicationDate = strtotime($data['publicationDate']);
+                } else {
+                    $this->publicationDate = (int) $data['publicationDate'];
+                }
+            }
         }
     }
     
@@ -125,6 +134,29 @@ class ArticleModel extends Model
             "results" => $list,
             "totalRows" => $totalRows ? $totalRows['totalRows'] : 0
         );
+    }
+    
+    /**
+     * Получить статью по ID
+     * Переопределяем для преобразования даты в timestamp
+     */
+    public function getById(int $id, string $tableName = ''): ?\ItForFree\SimpleMVC\MVC\Model
+    {
+        $sql = "SELECT id, categoryId, subcategory_id, title, summary, content, is_visible, UNIX_TIMESTAMP(publicationDate) AS publicationDate 
+                FROM $this->tableName 
+                WHERE id = :id";
+        
+        $st = $this->pdo->prepare($sql);
+        $st->bindValue(":id", $id, \PDO::PARAM_INT);
+        $st->execute();
+        
+        $row = $st->fetch(\PDO::FETCH_ASSOC);
+        
+        if ($row) {
+            return new ArticleModel($row);
+        }
+        
+        return null;
     }
     
     /**
