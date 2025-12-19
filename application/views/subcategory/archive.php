@@ -1,26 +1,16 @@
 <?php 
 use ItForFree\SimpleMVC\Router\WebRouter;
-
-// Отладка: проверяем что передано
-// var_dump(isset($results['articles']), count($results['articles'] ?? []));
 ?>
 
-<?php if (empty($results['articles'])): ?>
-    <p>Статьи не найдены. Всего статей в базе: <?php echo $results['totalRows'] ?? 0 ?></p>
-<?php else: ?>
-<ul id="headlines">
+<h1><?php echo htmlspecialchars($results['subcategory']->name ?? '') ?></h1>
+
+<ul id="headlines" class="archive">
 <?php foreach ($results['articles'] as $article) { 
-    try {
-        $thanks = $article->getThanks();
-        $thanksNames = array();  
-        foreach ($thanks as $user) {
-            $thanksNames[] = htmlspecialchars($user->login ?? '');
-        }
-    } catch (\Exception $e) {
-        $thanksNames = array();
+    $thanks = $article->getThanks();
+    $thanksNames = array();  
+    foreach ($thanks as $user) {
+        $thanksNames[] = htmlspecialchars($user->login ?? '');
     }
-    
-    $Subcategory = new \application\models\SubcategoryModel();
 ?>
     <li class='article-<?php echo $article->id?>'>
         <h2>
@@ -44,19 +34,6 @@ use ItForFree\SimpleMVC\Router\WebRouter;
                     <?php echo "Без категории"?>
                 </span>
             <?php } ?>
-
-            <?php if (isset($article->subcategory_id) && $article->subcategory_id) { ?>
-                <?php 
-                $subcategory = $Subcategory->getById($article->subcategory_id);
-                if ($subcategory) { ?>
-                    <span class="subcategory" style="font-size: 80%; color: #666;">
-                        | 
-                    <a href="<?= WebRouter::link("subcategory/archive&subcategoryId=" . $article->subcategory_id)?>" style="color:#666">
-                        <?php echo htmlspecialchars($subcategory->name ?? '')?>
-                    </a>
-                    </span>
-                <?php } ?>
-            <?php } ?>
         </h2>
         
         <!-- Отображение благодарностей -->
@@ -66,10 +43,15 @@ use ItForFree\SimpleMVC\Router\WebRouter;
             </div>
         <?php } ?>
         
-        <p class="content"><?php echo htmlspecialchars($article->content ?? '')?></p>
+        <p class="content"><?php echo htmlspecialchars(mb_substr($article->content ?? '', 0, 50) . "...")?></p>
+        
+        <a href="<?= WebRouter::link("article/view&articleId=" . $article->id)?>" class="showContent">
+            Показать полностью
+        </a>
     </li>
 <?php } ?>
 </ul>
-<?php endif; ?>
 
-<p><a href="<?= WebRouter::link("category/archive")?>">Article Archive</a></p>
+<p><a href="<?= WebRouter::link("homepage/index")?>">Return to Homepage</a></p>
+
+

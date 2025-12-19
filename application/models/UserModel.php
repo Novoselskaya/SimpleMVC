@@ -30,6 +30,16 @@ class UserModel extends Model
     public $timestamp = null;
     
     /**
+     * @var string последнее время удачного логина
+     */
+    public $last_successful_login = null;
+    
+    /**
+     * @var string последнее время неудачного логина
+     */
+    public $last_failed_login = null;
+    
+    /**
      * @var string Критерий сортировки строк таблицы
      */
     public string $orderBy = "login ASC";
@@ -135,6 +145,38 @@ class UserModel extends Model
 	$st->bindValue(":login", $login, \PDO::PARAM_STR);
 	$st->execute();	
 	return $st->fetch();
+    }
+    
+    /**
+     * Обновить время успешного логина
+     */
+    public function updateSuccessfulLogin($login) {
+        $sql = "UPDATE $this->tableName SET last_successful_login = :loginTime WHERE login = :login";
+        $st = $this->pdo->prepare($sql);
+        $dateTime = new \DateTime('NOW', new \DateTimeZone('Europe/Moscow'));
+        $st->bindValue(":loginTime", $dateTime->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+        $st->bindValue(":login", $login, \PDO::PARAM_STR);
+        $st->execute();
+    }
+    
+    /**
+     * Обновить время неудачного логина
+     */
+    public function updateFailedLogin($login) {
+        $sql = "SELECT id FROM $this->tableName WHERE login = :login";
+        $st = $this->pdo->prepare($sql);
+        $st->bindValue(":login", $login, \PDO::PARAM_STR);
+        $st->execute();
+        $user = $st->fetch(\PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            $sql = "UPDATE $this->tableName SET last_failed_login = :loginTime WHERE login = :login";
+            $st = $this->pdo->prepare($sql);
+            $dateTime = new \DateTime('NOW', new \DateTimeZone('Europe/Moscow'));
+            $st->bindValue(":loginTime", $dateTime->format('Y-m-d H:i:s'), \PDO::PARAM_STR);
+            $st->bindValue(":login", $login, \PDO::PARAM_STR);
+            $st->execute();
+        }
     }
 
 }

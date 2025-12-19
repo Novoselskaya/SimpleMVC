@@ -17,6 +17,8 @@ class AuthUser extends User
 	$siteAuthData = $User->getAuthData($login);
 	
 	if (!$siteAuthData) {
+	    // Пользователь не найден - записываем неудачную попытку (если пользователь существует)
+	    $User->updateFailedLogin($login);
 	    return false;
 	}
 	
@@ -25,8 +27,16 @@ class AuthUser extends User
 	    $passForCheck = password_verify($passWithSalt, $siteAuthData['pass']);
 	    if ($passForCheck) {
 		$result = true;
+		// Успешный логин - записываем время
+		$User->updateSuccessfulLogin($login);
+	    } else {
+		// Неудачный логин - записываем время
+		$User->updateFailedLogin($login);
 	    }
-	}	
+	} else {
+	    // Неудачный логин (нет соли или пароля) - записываем время
+	    $User->updateFailedLogin($login);
+	}
         return $result;
     }
 

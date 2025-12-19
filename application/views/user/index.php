@@ -15,6 +15,8 @@ $User = Config::getObject('core.user.class');
       <th scope="col">Логин</th>
       <th scope="col">Email</th>
       <th scope="col">Зарегистрирован</th>
+      <th scope="col">Последний удачный логин</th>
+      <th scope="col">Последний неудачный логин</th>
       <th scope="col"></th>
     </tr>
      </thead>
@@ -26,6 +28,8 @@ $User = Config::getObject('core.user.class');
 		. $user->id . ">{$user->login}</a>" ) ?> </td>
         <td>  <?= $user->email ?> </td>
         <td>  <?= $user->timestamp ?> </td>
+        <td>  <?= !empty($user->last_successful_login) ? htmlspecialchars($user->last_successful_login. '+') : 'Никогда-' ?> </td>
+        <td>  <?= !empty($user->last_failed_login) ? htmlspecialchars($user->last_failed_login. '-') : 'Никогда-'?> </td>
         <td>  <?= $User->returnIfAllowed("admin/adminusers/edit",
                     "<a href=" . \ItForFree\SimpleMVC\Router\WebRouter::link("admin/adminusers/edit&id=". $user->id) 
                     . ">[Редактировать]</a>");?></td>

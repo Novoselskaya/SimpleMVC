@@ -46,6 +46,16 @@ $User = Config::getObject('core.user.class');
         <input type="text" class="form-control" name="email" id="email" placeholder="email" value="<?= $viewAdminusers->email ?>">
     </div>
     
+    <div class="form-group">
+        <label>Последнее время удачного логина</label>
+        <input type="text" class="form-control" readonly value="<?= !empty($viewAdminusers->last_successful_login) ? htmlspecialchars($viewAdminusers->last_successful_login. '+') : 'Никогда-' ?>">
+    </div>
+    
+    <div class="form-group">
+        <label>Последнее время неудачного логина</label>
+        <input type="text" class="form-control" readonly value="<?= !empty($viewAdminusers->last_failed_login) ? htmlspecialchars($viewAdminusers->last_failed_login . '-') : 'Никогда-' ?>">
+    </div>
+    
     <input type="hidden" name="id" value="<?= $_GET['id']; ?>">
     <input type="submit" class="btn btn-primary" name="saveChanges" value="Сохранить">
     <input type="submit" class="btn" name="cancel" value="Назад">

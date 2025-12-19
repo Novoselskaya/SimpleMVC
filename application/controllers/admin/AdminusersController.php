@@ -12,8 +12,8 @@ class AdminusersController extends \ItForFree\SimpleMVC\MVC\Controller
     public string $layoutPath = 'admin-main.php';
     
     protected array $rules = [ //вариант 2:  здесь всё гибче, проще развивать в дальнешем
-         ['allow' => true, 'roles' => ['admin']],
-         ['allow' => false, 'roles' => ['?', '@']],
+         ['allow' => true, 'roles' => ['@']], // разрешаем доступ всем авторизованным пользователям
+         ['allow' => false, 'roles' => ['?']], // запрещаем только гостям
     ];
     
     /**
