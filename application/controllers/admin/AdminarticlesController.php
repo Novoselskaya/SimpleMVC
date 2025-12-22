@@ -75,11 +75,11 @@ class AdminarticlesController extends \ItForFree\SimpleMVC\MVC\Controller
                     $article->subcategory_id = null;
                 }
                 
-                // Обработка благодарностей
-                if (isset($_POST['thanksIds']) && is_array($_POST['thanksIds'])) {
-                    $article->thanksIds = array_map('intval', $_POST['thanksIds']);
+                // Обработка авторов
+                if (isset($_POST['authorIds']) && is_array($_POST['authorIds'])) {
+                    $article->authorIds = array_map('intval', $_POST['authorIds']);
                 } else {
-                    $article->thanksIds = array();
+                    $article->authorIds = array();
                 }
                 
                 $article->insert();
@@ -156,11 +156,11 @@ class AdminarticlesController extends \ItForFree\SimpleMVC\MVC\Controller
                     $article->subcategory_id = null;
                 }
                 
-                // Обработка благодарностей
-                if (isset($_POST['thanksIds']) && is_array($_POST['thanksIds'])) {
-                    $article->thanksIds = array_map('intval', $_POST['thanksIds']);
+                // Обработка авторов
+                if (isset($_POST['authorIds']) && is_array($_POST['authorIds'])) {
+                    $article->authorIds = array_map('intval', $_POST['authorIds']);
                 } else {
-                    $article->thanksIds = array();
+                    $article->authorIds = array();
                 }
                 
                 $article->update();

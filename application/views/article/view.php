@@ -33,15 +33,19 @@ $User = Config::getObject('core.user.class');
     </div>
     
     <?php 
-    $thanks = $results['article']->getThanks();
-    if (!empty($thanks)) { 
-        $thanksNames = array();
-        foreach ($thanks as $user) {
-            $thanksNames[] = htmlspecialchars($user->login);
+    // Отображение авторов
+    $authors = $results['article']->getAuthors();
+    $authorNames = array();
+    if (!empty($authors)) { 
+        foreach ($authors as $author) {
+            if (!empty($author->login)) {
+                $authorNames[] = htmlspecialchars($author->login);
+            }
         }
-    ?>
-        <div class="article-thanks" style="margin: 10px 0; padding: 8px; background: #f9f9f9; border-radius: 5px; font-style: italic;">
-            <strong>Благодарности: </strong> <?php echo implode(', ', $thanksNames) ?>
+    }
+    if (!empty($authorNames)) { ?>
+        <div class="article-authors" style="margin: 10px 0; padding: 8px; background: #e8f4f8; border-radius: 5px;">
+            <strong>Авторы: </strong> <?php echo implode(', ', $authorNames) ?>
         </div>
     <?php } ?>
     

@@ -16,6 +16,58 @@ class SubcategoryModel extends Model
     public $category_id = null;
     
     /**
+     * Конструктор для загрузки данных из массива
+     */
+    public function __construct(?array $data = null)
+    {
+        // Обрабатываем типы ПЕРЕД вызовом родительского конструктора
+        if (is_array($data)) {
+            if (isset($data['id'])) {
+                if ($data['id'] === '' || $data['id'] === null) {
+                    unset($data['id']);
+                } else {
+                    $data['id'] = (int) $data['id'];
+                }
+            }
+            
+            if (isset($data['category_id'])) {
+                if ($data['category_id'] === '' || $data['category_id'] === '0' || $data['category_id'] === null) {
+                    $data['category_id'] = null;
+                } else {
+                    $data['category_id'] = (int) $data['category_id'];
+                }
+            }
+        }
+        
+        parent::__construct($data);
+    }
+    
+    /**
+     * Загрузить данные из массива с правильной обработкой типов
+     */
+    public function loadFromArray(array $data): \ItForFree\SimpleMVC\MVC\Model
+    {
+        // Обрабатываем типы перед загрузкой
+        if (isset($data['id'])) {
+            if ($data['id'] === '' || $data['id'] === null) {
+                unset($data['id']);
+            } else {
+                $data['id'] = (int) $data['id'];
+            }
+        }
+        
+        if (isset($data['category_id'])) {
+            if ($data['category_id'] === '' || $data['category_id'] === '0') {
+                $data['category_id'] = null;
+            } else {
+                $data['category_id'] = (int) $data['category_id'];
+            }
+        }
+        
+        return parent::loadFromArray($data);
+    }
+    
+    /**
      * Получить подкатегории по ID категории
      */
     public function getByCategoryId($categoryId)
@@ -44,7 +96,11 @@ class SubcategoryModel extends Model
         $sql = "INSERT INTO $this->tableName (name, category_id) VALUES (:name, :category_id)";
         $st = $this->pdo->prepare($sql);
         $st->bindValue(":name", $this->name, \PDO::PARAM_STR);
-        $st->bindValue(":category_id", $this->category_id, \PDO::PARAM_INT);
+        if (is_null($this->category_id)) {
+            $st->bindValue(":category_id", null, \PDO::PARAM_NULL);
+        } else {
+            $st->bindValue(":category_id", $this->category_id, \PDO::PARAM_INT);
+        }
         $st->execute();
         $this->id = $this->pdo->lastInsertId();
     }
@@ -58,7 +114,11 @@ class SubcategoryModel extends Model
         $sql = "UPDATE $this->tableName SET name=:name, category_id=:category_id WHERE id = :id";
         $st = $this->pdo->prepare($sql);
         $st->bindValue(":name", $this->name, \PDO::PARAM_STR);
-        $st->bindValue(":category_id", $this->category_id, \PDO::PARAM_INT);
+        if (is_null($this->category_id)) {
+            $st->bindValue(":category_id", null, \PDO::PARAM_NULL);
+        } else {
+            $st->bindValue(":category_id", $this->category_id, \PDO::PARAM_INT);
+        }
         $st->bindValue(":id", $this->id, \PDO::PARAM_INT);
         $st->execute();
     }

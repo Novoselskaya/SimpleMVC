@@ -20,7 +20,6 @@ class ArticleModel extends Model
     public $is_visible = 1;
     public $subcategory_id = null;
     public $authorIds = array();
-    public $thanksIds = array();
     
     /**
      * Конструктор для загрузки данных из массива
@@ -61,6 +60,45 @@ class ArticleModel extends Model
                 }
             }
         }
+    }
+    
+    /**
+     * Загрузить данные из массива с правильной обработкой типов
+     * Переопределяем для корректной обработки типизированных свойств
+     */
+    public function loadFromArray(array $data): \ItForFree\SimpleMVC\MVC\Model
+    {
+        // Обрабатываем типы перед загрузкой
+        if (isset($data['id'])) {
+            if ($data['id'] === '' || $data['id'] === null) {
+                unset($data['id']); // Убираем пустой id для новых записей
+            } else {
+                $data['id'] = (int) $data['id'];
+            }
+        }
+        
+        if (isset($data['categoryId'])) {
+            if ($data['categoryId'] === '' || $data['categoryId'] === '0') {
+                $data['categoryId'] = null;
+            } else {
+                $data['categoryId'] = (int) $data['categoryId'];
+            }
+        }
+        
+        if (isset($data['subcategory_id'])) {
+            if ($data['subcategory_id'] === '' || $data['subcategory_id'] === '0') {
+                $data['subcategory_id'] = null;
+            } else {
+                $data['subcategory_id'] = (int) $data['subcategory_id'];
+            }
+        }
+        
+        if (isset($data['is_visible'])) {
+            $data['is_visible'] = ($data['is_visible'] === '1' || $data['is_visible'] === 1 || $data['is_visible'] === true) ? 1 : 0;
+        }
+        
+        // Вызываем родительский метод с обработанными данными
+        return parent::loadFromArray($data);
     }
     
     /**
@@ -179,43 +217,11 @@ class ArticleModel extends Model
             
             $authors = array();
             while ($row = $st->fetch(\PDO::FETCH_ASSOC)) {
-                $user = new UserModel();
-                $user->loadFromArray($row);
+                $user = new UserModel($row);
                 $authors[] = $user;
             }
             
             return $authors;
-        } catch (\PDOException $e) {
-            return array();
-        }
-    }
-    
-    /**
-     * Получить благодарности статьи
-     */
-    public function getThanks()
-    {
-        if (is_null($this->id)) {
-            return array();
-        }
-        
-        try {
-            $sql = "SELECT u.* FROM users u 
-                    INNER JOIN article_thanks at ON u.id = at.user_id 
-                    WHERE at.article_id = :articleId 
-                    ORDER BY u.login";
-            $st = $this->pdo->prepare($sql);
-            $st->bindValue(":articleId", $this->id, \PDO::PARAM_INT);
-            $st->execute();
-            
-            $thanks = array();
-            while ($row = $st->fetch(\PDO::FETCH_ASSOC)) {
-                $user = new UserModel();
-                $user->loadFromArray($row);
-                $thanks[] = $user;
-            }
-            
-            return $thanks;
         } catch (\PDOException $e) {
             return array();
         }
@@ -246,48 +252,6 @@ class ArticleModel extends Model
                 foreach ($this->authorIds as $index => $authorId) {
                     $values[] = "(:articleId, :authorId$index)";
                     $params[":authorId$index"] = $authorId;
-                }
-                
-                $sql .= implode(", ", $values);
-                $st = $this->pdo->prepare($sql);
-                $st->bindValue(":articleId", $this->id, \PDO::PARAM_INT);
-                
-                foreach ($params as $key => $value) {
-                    $st->bindValue($key, $value, \PDO::PARAM_INT);
-                }
-                
-                $st->execute();
-            }
-        } catch (\PDOException $e) {
-            // Игнорируем ошибку, если таблица не существует
-        }
-    }
-    
-    /**
-     * Сохранить благодарности статьи
-     */
-    public function saveThanks()
-    {
-        if (is_null($this->id)) {
-            return;
-        }
-        
-        try {
-            // Удаляем старые благодарности
-            $sql = "DELETE FROM article_thanks WHERE article_id = :articleId";
-            $st = $this->pdo->prepare($sql);
-            $st->bindValue(":articleId", $this->id, \PDO::PARAM_INT);
-            $st->execute();
-            
-            // Добавляем новые благодарности
-            if (!empty($this->thanksIds)) {
-                $sql = "INSERT INTO article_thanks (article_id, user_id) VALUES ";
-                $values = array();
-                $params = array();
-                
-                foreach ($this->thanksIds as $index => $userId) {
-                    $values[] = "(:articleId, :userId$index)";
-                    $params[":userId$index"] = $userId;
                 }
                 
                 $sql .= implode(", ", $values);
@@ -348,7 +312,6 @@ class ArticleModel extends Model
         $this->id = $this->pdo->lastInsertId();
         
         $this->saveAuthors();
-        $this->saveThanks();
     }
     
     public function update()
@@ -395,7 +358,6 @@ class ArticleModel extends Model
         $st->execute();
         
         $this->saveAuthors();
-        $this->saveThanks();
     }
     
     public function delete(): void
@@ -404,17 +366,9 @@ class ArticleModel extends Model
             trigger_error("ArticleModel::delete(): Attempt to delete an Article object that does not have its ID property set.", E_USER_ERROR);
         }
         
-        // Удаляем связи с авторами и благодарностями
+        // Удаляем связи с авторами
         try {
             $st = $this->pdo->prepare("DELETE FROM article_authors WHERE article_id = :id");
-            $st->bindValue(":id", $this->id, \PDO::PARAM_INT);
-            $st->execute();
-        } catch (\PDOException $e) {
-            // Игнорируем ошибку
-        }
-        
-        try {
-            $st = $this->pdo->prepare("DELETE FROM article_thanks WHERE article_id = :id");
             $st->bindValue(":id", $this->id, \PDO::PARAM_INT);
             $st->execute();
         } catch (\PDOException $e) {

@@ -13,12 +13,6 @@ use ItForFree\SimpleMVC\Router\WebRouter;
 
 <ul id="headlines" class="archive">
 <?php foreach ($results['articles'] as $article) { 
-    $thanks = $article->getThanks();
-    $thanksNames = array();  
-    foreach ($thanks as $user) {
-        $thanksNames[] = htmlspecialchars($user->login ?? '');
-    }
-    
     $Subcategory = new \application\models\SubcategoryModel();
 ?>
     <li class='article-<?php echo $article->id?>'>
@@ -57,13 +51,6 @@ use ItForFree\SimpleMVC\Router\WebRouter;
                 <?php } ?>
             <?php } ?>
         </h2>
-        
-        <!-- Отображение благодарностей -->
-        <?php if (!empty($thanksNames)) { ?>
-            <div class="article-thanks" style="font-size: 0.8em; color: #888; margin: 3px 0;">
-                <strong>Благодарности:</strong> <?php echo implode('| ', $thanksNames) ?>
-            </div>
-        <?php } ?>
         
         <p class="content"><?php echo htmlspecialchars(mb_substr($article->content ?? '', 0, 50) . "...")?></p>
         

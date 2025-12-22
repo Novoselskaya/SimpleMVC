@@ -1,8 +1,6 @@
 <?php 
 use ItForFree\SimpleMVC\Router\WebRouter;
 
-// Отладка: проверяем что передано
-// var_dump(isset($results['articles']), count($results['articles'] ?? []));
 ?>
 
 <?php if (empty($results['articles'])): ?>
@@ -11,13 +9,15 @@ use ItForFree\SimpleMVC\Router\WebRouter;
 <ul id="headlines">
 <?php foreach ($results['articles'] as $article) { 
     try {
-        $thanks = $article->getThanks();
-        $thanksNames = array();  
-        foreach ($thanks as $user) {
-            $thanksNames[] = htmlspecialchars($user->login ?? '');
+        $authors = $article->getAuthors();
+        $authorNames = array();
+        foreach ($authors as $author) {
+            if (!empty($author->login)) {
+                $authorNames[] = htmlspecialchars($author->login);
+            }
         }
     } catch (\Exception $e) {
-        $thanksNames = array();
+        $authorNames = array();
     }
     
     $Subcategory = new \application\models\SubcategoryModel();
@@ -59,10 +59,10 @@ use ItForFree\SimpleMVC\Router\WebRouter;
             <?php } ?>
         </h2>
         
-        <!-- Отображение благодарностей -->
-        <?php if (!empty($thanksNames)) { ?>
-            <div class="article-thanks" style="font-size: 0.8em; color: #888; margin: 3px 0;">
-                <strong>Благодарности:</strong> <?php echo implode('| ', $thanksNames) ?>
+        <!-- Отображение авторов -->
+        <?php if (!empty($authorNames)) { ?>
+            <div class="article-authors" style="font-size: 0.8em; color: #666; margin: 3px 0;">
+                <strong>Авторы:</strong> <?php echo implode(', ', $authorNames) ?>
             </div>
         <?php } ?>
         

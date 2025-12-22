@@ -15,6 +15,42 @@ class CategoryModel extends Model
     public $name = null;
     public $description = null;
     
+    /**
+     * Конструктор для загрузки данных из массива
+     */
+    public function __construct(?array $data = null)
+    {
+        // Обрабатываем типы ПЕРЕД вызовом родительского конструктора
+        if (is_array($data)) {
+            if (isset($data['id'])) {
+                if ($data['id'] === '' || $data['id'] === null) {
+                    unset($data['id']);
+                } else {
+                    $data['id'] = (int) $data['id'];
+                }
+            }
+        }
+        
+        parent::__construct($data);
+    }
+    
+    /**
+     * Загрузить данные из массива с правильной обработкой типов
+     */
+    public function loadFromArray(array $data): \ItForFree\SimpleMVC\MVC\Model
+    {
+        // Обрабатываем типы перед загрузкой
+        if (isset($data['id'])) {
+            if ($data['id'] === '' || $data['id'] === null) {
+                unset($data['id']);
+            } else {
+                $data['id'] = (int) $data['id'];
+            }
+        }
+        
+        return parent::loadFromArray($data);
+    }
+    
     public function insert()
     {
         if (!is_null($this->id)) {

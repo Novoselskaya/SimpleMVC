@@ -1,14 +1,5 @@
 <?php 
 use ItForFree\SimpleMVC\Router\WebRouter;
-?>
-<?php include('includes/admin-articles-nav.php'); ?>
-
-// Получаем текущих пользователей, выразивших благодарность
-$currentThanks = $article->getThanks();
-$currentThanksIds = array();
-foreach ($currentThanks as $user) {
-    $currentThanksIds[] = $user->id;
-}
 
 // Группируем подкатегории по категориям
 $subcategoriesByCategory = array();
@@ -16,6 +7,7 @@ foreach ($allSubcategories as $subcat) {
     $subcategoriesByCategory[$subcat->category_id][] = $subcat;
 }
 ?>
+<?php include('includes/admin-articles-nav.php'); ?>
 
 <h2><?php echo htmlspecialchars($pageTitle ?? 'Редактирование статьи')?></h2>
 
@@ -75,17 +67,26 @@ foreach ($allSubcategories as $subcat) {
     </div>
 
     <div class="form-group">
-        <label for="thanksIds">Благодарности</label>
-        <select class="form-control" name="thanksIds[]" id="thanksIds" multiple="multiple" size="5" style="height: auto; min-height: 100px;">
-            <?php foreach ($users as $user) { 
-                $selected = in_array($user->id, $currentThanksIds) ? " selected" : "";
+        <label for="authorIds">Авторы</label>
+        <select class="form-control" name="authorIds[]" id="authorIds" multiple="multiple" size="5" style="height: auto; min-height: 100px;">
+            <?php 
+            // Получаем текущих авторов статьи
+            $currentAuthors = $article->getAuthors();
+            $currentAuthorIds = array();
+            foreach ($currentAuthors as $author) {
+                $currentAuthorIds[] = $author->id;
+            }
+            
+            // Отображаем всех пользователей
+            foreach ($users as $user) { 
+                $selected = in_array($user->id, $currentAuthorIds) ? " selected" : "";
             ?>
                 <option value="<?php echo $user->id?>"<?php echo $selected?>>
                     <?php echo htmlspecialchars($user->login ?? '') ?>
                 </option>
             <?php } ?>
         </select>
-        <small style="color: #666;">Удерживайте Ctrl (Cmd на Mac) для выбора нескольких пользователей</small>
+        <small style="color: #666;">Удерживайте Ctrl (Cmd на Mac) для выбора нескольких авторов</small>
     </div>
 
     <div class="form-group">
